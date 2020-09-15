@@ -1,0 +1,23 @@
+{
+  "name": "mnemonic-secret-sharing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bech32": "^1.1.4",
+    "bip32": "^2.0.5",
+    "bip39": "^3.0.2",
+    "secp256k1": "^4.0.2",
+    "slip39": "^0.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb-base": "^14.2.0"
+  }
+}
