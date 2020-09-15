@@ -14,13 +14,13 @@ const {
 function entropyFromInput(mnemonicInput) {
   const mnemonicInputTrimmed = mnemonicInput.trim();
   if (mnemonicInputTrimmed === '') {
-    console.log('Got empty mnemonic, generating one');
+    console.log('Got empty mnemonic, generating one.');
     return crypto.randomBytes(32);
   } else {
-    console.log('Got mnemonic');
     if (!bip39.validateMnemonic(mnemonicInputTrimmed)) {
       throw new Error('Invalid mnemonic');
     }
+    console.log('Got mnemonic.');
     const entropyHex = bip39.mnemonicToEntropy(mnemonicInputTrimmed);
     const entropy = Buffer.from(entropyHex, 'hex');
     const cosmosAddress = entropyToFirstCosmosAddress(entropy);
@@ -82,19 +82,26 @@ async function main() {
 
   await prompt('Press Enter to generate the shares, then copy them one by one.');
 
+  fs.mkdirSync('./output', { recursive: true });
+
   const groups = [[threshold, totalShares]]; // 1-of-1 in level 1, threshold-of-totalShares in level 2
   const slip = slip39.fromArray(Array.from(entropy), { groups });
   for (let i = 0; i < totalShares; i += 1) {
     await clearScreen();
     const shareHolder = shareHolders[i];
     await prompt(`Share holder ${i}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
+    console.log('================================================================================')
     const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
-    console.log(mnemonic.join('    '));
+    const mnemonicWords = mnemonic[0].split(/\s+/g);
+    for (let i = 0; i < mnemonicWords.length; i += 8) {
+      console.log(mnemonicWords.slice(i, i + 8).join('    '));
+    }
+    console.log('================================================================================')
     shareHolder.mnemonic = mnemonic;
     await prompt('Press Enter to clear screen and write the mnemonic into file.');
     await clearScreen();
     const json = JSON.stringify(shareHolder, null, 2);
-    const jsonPath = `./share-${i}-${shareHolder.name}.json`;
+    const jsonPath = `./output/share-${i}-${shareHolder.name}.json`;
     fs.writeFileSync(jsonPath, json);
     await prompt(`Share info written to ${jsonPath}. Press Enter to continue.`);
   }
