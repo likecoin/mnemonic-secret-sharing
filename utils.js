@@ -60,7 +60,7 @@ async function displayMnemonic(mnemonic, { shareHolders, splits }) {
     const from = Math.ceil(mnemonicWords.length * i / n);
     const to = Math.ceil(mnemonicWords.length * (i + 1) / n);
     await prompt(`Share holder ${i} ${shareHolderName}, please press Enter to show the mnemonic from word ${from} to ${to - 1}.`);
-    console.log(mnemonicWords.slice(from, to));
+    console.log(mnemonicWords.slice(from, to).join('    '));
     await prompt(`Please input the above mnemonic words into the Ledger, then press Enter.`);
   }
   await clearScreen();

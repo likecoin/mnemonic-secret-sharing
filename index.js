@@ -89,7 +89,7 @@ async function main() {
     const shareHolder = shareHolders[i];
     await prompt(`Share holder ${i}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
     const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
-    console.log(mnemonic);
+    console.log(mnemonic.join('    '));
     shareHolder.mnemonic = mnemonic;
     await prompt('Press Enter to clear screen and write the mnemonic into file.');
     await clearScreen();
