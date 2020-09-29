@@ -75,7 +75,7 @@ async function main() {
 
   const shareHolders = [];
   for (let i = 0; i < totalShares; i += 1) {
-    const nameInput = await prompt(`Input the name of share holder ${i}: `);
+    const nameInput = await prompt(`Input the name of share holder ${i + 1}: `);
     const name = nameInput.trim();
     shareHolders.push({ purpose, name, threshold, totalShares, path: `r/0/${i}` });
   }
@@ -89,7 +89,7 @@ async function main() {
   for (let i = 0; i < totalShares; i += 1) {
     await clearScreen();
     const shareHolder = shareHolders[i];
-    await prompt(`Share holder ${i}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
+    await prompt(`Share holder ${i + 1}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
     console.log('================================================================================')
     const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
     const mnemonicWords = mnemonic[0].split(/\s+/g);
@@ -101,7 +101,7 @@ async function main() {
     await prompt('Press Enter to clear screen and write the mnemonic into file.');
     await clearScreen();
     const json = JSON.stringify(shareHolder, null, 2);
-    const jsonPath = `./output/share-${i}-${shareHolder.name}.json`;
+    const jsonPath = `./output/share-${i + 1}-${shareHolder.name}.json`;
     fs.writeFileSync(jsonPath, json);
     await prompt(`Share info written to ${jsonPath}. Press Enter to continue.`);
   }
