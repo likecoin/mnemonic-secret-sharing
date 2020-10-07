@@ -1,7 +1,6 @@
 const bip39 = require('bip39');
 const slip39 = require('slip39');
 const crypto = require('crypto');
-const fs = require('fs');
 const assert = require('assert');
 
 const {
@@ -82,12 +81,10 @@ async function main() {
 
   await prompt('Press Enter to generate the shares, then copy them one by one.');
 
-  fs.mkdirSync('./output', { recursive: true });
-
   const groups = [[threshold, totalShares]]; // 1-of-1 in level 1, threshold-of-totalShares in level 2
   const slip = slip39.fromArray(Array.from(entropy), { groups });
+  await clearScreen();
   for (let i = 0; i < totalShares; i += 1) {
-    await clearScreen();
     const shareHolder = shareHolders[i];
     await prompt(`Share holder ${i + 1}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
     console.log('================================================================================')
@@ -98,12 +95,8 @@ async function main() {
     }
     console.log('================================================================================')
     shareHolder.mnemonic = mnemonic;
-    await prompt('Press Enter to clear screen and write the mnemonic into file.');
+    await prompt('Press Enter to move to next share holder.');
     await clearScreen();
-    const json = JSON.stringify(shareHolder, null, 2);
-    const jsonPath = `./output/share-${i + 1}-${shareHolder.name}.json`;
-    fs.writeFileSync(jsonPath, json);
-    await prompt(`Share info written to ${jsonPath}. Press Enter to continue.`);
   }
 
   checkRecover(shareHolders, entropy);
