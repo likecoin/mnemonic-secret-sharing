@@ -5,6 +5,7 @@ const {
   clearScreen,
   displayMnemonic,
   entropyToFirstCosmosAddress,
+  normalizeSlip39Mnemonic,
 } = require('./utils');
 
 async function main() {
@@ -22,11 +23,20 @@ async function main() {
 
   const shares = [];
   for (let i = 0; i < threshold; i += 1) {
-    await clearScreen();
-    const shareMnemonicInput = await prompt(`Input the mnemonic of share ${i + 1}:\n`);
-    const share = shareMnemonicInput.trim();
-    shares.push(share);
+    while (true) {
+      await clearScreen();
+      const shareMnemonicRawInput = await prompt(`Input the mnemonic of share ${i + 1}:\n`);
+      try {
+        const shareMnemonicInput = normalizeSlip39Mnemonic(shareMnemonicRawInput);
+        const share = shareMnemonicInput.trim();
+        shares.push(share);
+        break;
+      } catch (err) {
+        await prompt(`Error: ${err}, please try again.`);
+      }
+    }
   }
+  await clearScreen();
   const recoveredEntropy = Buffer.from(slip39.recoverSecret(shares));
   if (isVerifyMode) {
     const cosmosAddress = entropyToFirstCosmosAddress(recoveredEntropy);

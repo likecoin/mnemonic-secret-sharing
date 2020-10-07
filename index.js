@@ -8,6 +8,7 @@ const {
   clearScreen,
   entropyToFirstCosmosAddress,
   displayMnemonic,
+  normalizeSlip39Mnemonic
 } = require('./utils.js');
 
 function entropyFromInput(mnemonicInput) {
@@ -70,35 +71,48 @@ async function main() {
   }
   console.log(`Threshold = ${threshold}`);
 
-  const purpose = await prompt('Enter a short description for the purpose of the shared secret: ');
-
   const shareHolders = [];
   for (let i = 0; i < totalShares; i += 1) {
     const nameInput = await prompt(`Input the name of share holder ${i + 1}: `);
     const name = nameInput.trim();
-    shareHolders.push({ purpose, name, threshold, totalShares, path: `r/0/${i}` });
+    shareHolders.push({ name, threshold, path: `r/0/${i}` });
   }
 
   await prompt('Press Enter to generate the shares, then copy them one by one.');
 
   const groups = [[threshold, totalShares]]; // 1-of-1 in level 1, threshold-of-totalShares in level 2
   const slip = slip39.fromArray(Array.from(entropy), { groups });
-  await clearScreen();
   for (let i = 0; i < totalShares; i += 1) {
-    const shareHolder = shareHolders[i];
-    await prompt(`Share holder ${i + 1}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
-    console.log('================================================================================')
-    const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
-    const mnemonicWords = mnemonic[0].split(/\s+/g);
-    for (let i = 0; i < mnemonicWords.length; i += 8) {
-      console.log(mnemonicWords.slice(i, i + 8).map((word) => word.padEnd(10)).join(''));
+    while (true) {
+      await clearScreen();
+      const shareHolder = shareHolders[i];
+      await prompt(`Share holder ${i + 1}: ${shareHolder.name}, please press Enter and show the mnemonic of your share.`);
+      console.log('================================================================================')
+      const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
+      const mnemonicWords = mnemonic[0].split(/\s+/g);
+      for (let i = 0; i < mnemonicWords.length; i += 8) {
+        console.log(mnemonicWords.slice(i, i + 8).map((word) => word.padEnd(10)).join(''));
+      }
+      console.log('================================================================================')
+      shareHolder.mnemonic = mnemonic;
+      await prompt('Please write down the mnemonic words, then press Enter to begin verifying the written mnemonic words.');
+      await clearScreen();
+      const rawMnemonicInput = await prompt('Please input the mneomnic word you just copied, then press Enter:\n');
+      try {
+        const mnemonicInput = normalizeSlip39Mnemonic(rawMnemonicInput);
+        if (mnemonicInput !== mnemonic[0]) {
+          throw new Error('Mnemonic words not match');
+        }
+        await clearScreen();
+        await prompt('Mnemonic words verified. Press Enter to move to next share holder.');
+        break;
+      } catch (err) {
+        await prompt(`Error: ${err}, please try again.`);
+      }
     }
-    console.log('================================================================================')
-    shareHolder.mnemonic = mnemonic;
-    await prompt('Press Enter to move to next share holder.');
-    await clearScreen();
   }
 
+  await clearScreen();
   checkRecover(shareHolders, entropy);
 
   await displayMnemonic(bip39.entropyToMnemonic(entropy), { shareHolders });
