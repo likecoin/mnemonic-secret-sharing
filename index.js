@@ -94,7 +94,7 @@ async function main() {
     const mnemonic = slip.fromPath(shareHolder.path).mnemonics;
     const mnemonicWords = mnemonic[0].split(/\s+/g);
     for (let i = 0; i < mnemonicWords.length; i += 8) {
-      console.log(mnemonicWords.slice(i, i + 8).join('    '));
+      console.log(mnemonicWords.slice(i, i + 8).map((word) => word.padEnd(10)).join(''));
     }
     console.log('================================================================================')
     shareHolder.mnemonic = mnemonic;
