@@ -4,6 +4,8 @@ const bip39 = require('bip39');
 const bip32 = require('bip32');
 const secp256k1 = require('secp256k1');
 const bech32 = require('bech32');
+const bls = require('noble-bls12-381');
+const blsKeygen = require('bls12-381-keygen');
 
 const SLIP39_WORDLIST = [
   'academic',
@@ -1068,6 +1070,14 @@ function getFirstCosmosAddressFromMnemonic(mnemonic) {
   return cosmosAddress;
 }
 
+function getEth2PublicKeyFromMnemonic(mnemonic, path = 'm/12381/3600/0/0/0') {
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const privKey = blsKeygen.deriveSeedTree(seed, path);
+  const pubKeyBytes = bls.getPublicKey(privKey);
+  const pubKeyHex = Buffer.from(pubKeyBytes).toString('hex');
+  return `0x${pubKeyHex}`;
+}
+
 function entropyToFirstCosmosAddress(entropy) {
   const mnemonic = bip39.entropyToMnemonic(entropy.toString('hex'));
   return getFirstCosmosAddressFromMnemonic(mnemonic);
@@ -1096,10 +1106,10 @@ async function displayMnemonic(mnemonic, { shareHolders, splits }) {
   }
   await clearScreen();
   const cosmosAddress = getFirstCosmosAddressFromMnemonic(mnemonic);
-  console.log(
-    'All mnemonic words entered. Please install Cosmos App on Ledger and verify the address.' + 
-    `The first Cosmos address from this mnemonic should be ${cosmosAddress}.`,
-  );
+  const eth2PubKey = getEth2PublicKeyFromMnemonic(mnemonic);
+  console.log('All mnemonic words entered. Please install Cosmos App on Ledger and verify the address.');
+  console.log(`The first Cosmos address from this mnemonic should be ${cosmosAddress}.`);
+  console.log(`The Eth 2.0 public key from this mnemonic should be ${eth2PubKey}.`);
 }
 
 function normalizeSlip39Mnemonic(mneomnic) {
