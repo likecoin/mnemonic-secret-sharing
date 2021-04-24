@@ -4,7 +4,7 @@ const {
   prompt,
   clearScreen,
   displayMnemonic,
-  entropyToFirstCosmosAddress,
+  displayMnemonicAddresses,
   normalizeSlip39Mnemonic,
 } = require('./utils');
 
@@ -38,11 +38,12 @@ async function main() {
   }
   await clearScreen();
   const recoveredEntropy = Buffer.from(slip39.recoverSecret(shares));
+  const mnemonic = bip39.entropyToMnemonic(recoveredEntropy);
   if (isVerifyMode) {
-    const cosmosAddress = entropyToFirstCosmosAddress(recoveredEntropy);
-    console.log(`The first Cosmos address should be ${cosmosAddress}.`);
+    console.log('All mnemonic words entered. Please install Cosmos App on Ledger and verify the address.');
+    await displayMnemonicAddresses(mnemonic);
   } else {
-    await displayMnemonic(bip39.entropyToMnemonic(recoveredEntropy), { splits: threshold });
+    await displayMnemonic(mnemonic, { splits: threshold });
   }
 }
 

@@ -1083,6 +1083,13 @@ function entropyToFirstCosmosAddress(entropy) {
   return getFirstCosmosAddressFromMnemonic(mnemonic);
 }
 
+async function displayMnemonicAddresses(mnemonic) {
+  const cosmosAddress = getFirstCosmosAddressFromMnemonic(mnemonic);
+  const eth2PubKey = getEth2PublicKeyFromMnemonic(mnemonic);
+  console.log(`The first Cosmos address from this mnemonic should be ${cosmosAddress}.`);
+  console.log(`The Eth 2.0 public key from this mnemonic should be ${eth2PubKey}.`);
+}
+
 async function displayMnemonic(mnemonic, { shareHolders, splits }) {
   const mnemonicWords = mnemonic.split(/\s+/g);
   await clearScreen();
@@ -1105,11 +1112,8 @@ async function displayMnemonic(mnemonic, { shareHolders, splits }) {
     await prompt(`Please input the above mnemonic words into the Ledger, then press Enter.`);
   }
   await clearScreen();
-  const cosmosAddress = getFirstCosmosAddressFromMnemonic(mnemonic);
-  const eth2PubKey = getEth2PublicKeyFromMnemonic(mnemonic);
   console.log('All mnemonic words entered. Please install Cosmos App on Ledger and verify the address.');
-  console.log(`The first Cosmos address from this mnemonic should be ${cosmosAddress}.`);
-  console.log(`The Eth 2.0 public key from this mnemonic should be ${eth2PubKey}.`);
+  await displayMnemonicAddresses(mnemonic);
 }
 
 function normalizeSlip39Mnemonic(mneomnic) {
@@ -1130,4 +1134,5 @@ module.exports = {
   entropyToFirstCosmosAddress,
   displayMnemonic,
   normalizeSlip39Mnemonic,
+  displayMnemonicAddresses,
 };

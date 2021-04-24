@@ -7,11 +7,12 @@ const {
   prompt,
   clearScreen,
   entropyToFirstCosmosAddress,
+  displayMnemonicAddresses,
   displayMnemonic,
   normalizeSlip39Mnemonic
 } = require('./utils.js');
 
-function entropyFromInput(mnemonicInput) {
+async function entropyFromInput(mnemonicInput) {
   const mnemonicInputTrimmed = mnemonicInput.trim();
   if (mnemonicInputTrimmed === '') {
     console.log('Got empty mnemonic, generating one.');
@@ -21,10 +22,9 @@ function entropyFromInput(mnemonicInput) {
       throw new Error('Invalid mnemonic');
     }
     console.log('Got mnemonic.');
+    await displayMnemonicAddresses(mnemonicInputTrimmed);
     const entropyHex = bip39.mnemonicToEntropy(mnemonicInputTrimmed);
     const entropy = Buffer.from(entropyHex, 'hex');
-    const cosmosAddress = entropyToFirstCosmosAddress(entropy);
-    console.log(`The first Cosmos address from this mnemonic should be ${cosmosAddress}.`);
     return entropy;
   }
 }
@@ -55,7 +55,7 @@ async function main() {
     'please input and press enter, otherwise just leave it empty:\n',
   );
   await clearScreen();
-  const entropy = entropyFromInput(mnemonicInput);
+  const entropy = await entropyFromInput(mnemonicInput);
 
   const totalSharesInput = await prompt('Input the total number of shares: ');
   const totalShares = Number.parseInt(totalSharesInput, 10);
