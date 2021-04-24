@@ -9,9 +9,18 @@ const {
 } = require('./utils');
 
 async function main() {
-  const isVerifyMode = process.argv[2] === '--verify'
+  const isVerifyMode = process.argv[2] === '--verify';
+  const isRecoverMode = process.argv[2] === '--recover';
+  if (!isVerifyMode && !isRecoverMode) {
+    throw new Error('either "--verify" or "--recover" must be provided')
+  }
+
   if (isVerifyMode) {
     console.log(`Now in verify mode, which won't display the mnemonic words.`);
+  }
+  if (isRecoverMode) {
+    console.log(`Now in recover mode, which WILL DISPLAY the mnemonic words.`);
+    thresholdInput = await prompt('!!!MAKE SURE YOU REALLY WANT THIS!!! Press Enter to continue, or Ctrl+C to exit.');
   }
 
   const thresholdInput = await prompt('Input the share threshold: ');
