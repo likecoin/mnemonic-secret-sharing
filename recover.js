@@ -20,7 +20,7 @@ async function main() {
   }
   if (isRecoverMode) {
     console.log(`Now in recover mode, which WILL DISPLAY the mnemonic words.`);
-    thresholdInput = await prompt('!!!MAKE SURE YOU REALLY WANT THIS!!! Press Enter to continue, or Ctrl+C to exit.');
+    await prompt('!!!MAKE SURE YOU REALLY WANT THIS!!! Press Enter to continue, or Ctrl+C to exit.');
   }
 
   const thresholdInput = await prompt('Input the share threshold: ');
